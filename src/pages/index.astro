@@ -1,0 +1,79 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import data from '../../data/latest.json'
+
+const products = data.products
+const fetchedAt = new Date(data.fetched_at).toISOString().slice(0, 10)
+---
+
+<BaseLayout
+  title="Janaushdhi — generic medicine prices vs brand MRPs"
+  description="Compare Jan Aushadhi (PMBJP) generic medicine prices against brand-name MRPs. Daily-refreshed table of products."
+>
+  <div class="page" id="main">
+    <h1>Jan Aushadhi prices vs brand MRPs</h1>
+    <p class="lede">
+      Daily-scraped prices from <strong>janaushadhi.gov.in</strong>. Last fetched <strong>{fetchedAt}</strong>.
+      Find the same molecule for a fraction of the brand price.
+    </p>
+
+    <div id="browse" style="margin: 20px 0;">
+      <label for="filter" style="display:block;font-weight:600;margin-bottom:6px;">
+        Filter products
+      </label>
+      <input
+        id="filter"
+        class="ja-input"
+        type="search"
+        placeholder="e.g. paracetamol, metformin, atorva…"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="ja-table-wrap">
+      <table class="ja-table" id="ja-products">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Pack</th>
+            <th>JA MRP (₹)</th>
+            <th>Brand equivalent</th>
+            <th>Brand MRP (₹)</th>
+            <th>Savings</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p) => (
+            <tr data-search={`${p.name} ${p.brand_equivalent}`.toLowerCase()}>
+              <td><a href={`/p/${p.slug}/`}>{p.name}</a></td>
+              <td>{p.pack}</td>
+              <td>₹{p.mrp_inr}</td>
+              <td>{p.brand_equivalent}</td>
+              <td>₹{p.brand_mrp_inr}</td>
+              <td class="ja-savings">{p.savings_pct}%</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top: 24px; color: var(--ja-muted); font-size: 0.9rem;">
+      Showing {products.length} products. Data refreshes daily at 03:00 UTC via GitHub Actions.
+    </p>
+  </div>
+
+  <script is:inline>
+    (() => {
+      const input = document.getElementById('filter');
+      const rows = document.querySelectorAll('#ja-products tbody tr');
+      if (!input) return;
+      input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
+        rows.forEach((row) => {
+          const hay = row.getAttribute('data-search') || '';
+          row.style.display = !q || hay.includes(q) ? '' : 'none';
+        });
+      });
+    })();
+  </script>
+</BaseLayout>

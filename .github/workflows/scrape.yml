@@ -1,0 +1,29 @@
+name: Scrape Jan Aushadhi
+on:
+  schedule:
+    - cron: '0 3 * * *'  # 03:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch + parse (stub)
+        run: |
+          # TODO: real scrape via puppeteer / playwright
+          DATE=$(date -u +%Y-%m-%d)
+          mkdir -p data
+          cp data/latest.json data/$DATE.csv.json || true
+          echo "stub run for $DATE"
+      - name: Commit
+        run: |
+          git config user.name "oriz-bot"
+          git config user.email "bot@oriz.in"
+          git add data/ && git diff --cached --quiet || git commit -m "data: daily scrape $(date -u +%Y-%m-%d)"
+          git push || true

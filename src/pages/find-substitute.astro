@@ -1,0 +1,64 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import data from '../../data/latest.json'
+
+const products = data.products
+---
+
+<BaseLayout
+  title="Find a Jan Aushadhi substitute"
+  description="Type a brand name to find the Jan Aushadhi (PMBJP) generic equivalent and the price you'd pay."
+>
+  <div class="page" id="main">
+    <h1>Find a Jan Aushadhi substitute</h1>
+    <p class="lede">Type a brand name (e.g. <em>Crocin, Glycomet, Atorva</em>) to find the generic equivalent.</p>
+
+    <label for="brand-input" style="display:block;font-weight:600;margin:16px 0 6px;">
+      Brand name
+    </label>
+    <input
+      id="brand-input"
+      class="ja-input"
+      type="search"
+      placeholder="e.g. Crocin 500"
+      autocomplete="off"
+    />
+
+    <div id="results" style="margin-top:20px;"></div>
+  </div>
+
+  <script
+    is:inline
+    define:vars={{ products }}
+    type="module"
+  >
+    const input = document.getElementById('brand-input');
+    const out = document.getElementById('results');
+
+    function render(q) {
+      if (!q) {
+        out.innerHTML = '<p style="color:var(--ja-muted);">Start typing a brand name…</p>';
+        return;
+      }
+      const needle = q.toLowerCase();
+      const hits = products.filter((p) =>
+        p.brand_equivalent.toLowerCase().includes(needle) ||
+        p.name.toLowerCase().includes(needle)
+      );
+      if (!hits.length) {
+        out.innerHTML = `<div class="ja-card"><p>No match for <strong>${q}</strong>. Try a shorter brand or the molecule name.</p></div>`;
+        return;
+      }
+      out.innerHTML = hits.map((p) => `
+        <div class="ja-card">
+          <h2 style="margin:0 0 4px;"><a href="/p/${p.slug}/">${p.name}</a></h2>
+          <p style="margin:0 0 6px;color:var(--ja-muted);">Generic equivalent of <strong>${p.brand_equivalent}</strong> · ${p.pack}</p>
+          <p style="margin:0;">Jan Aushadhi <strong>₹${p.mrp_inr}</strong> · Brand ₹${p.brand_mrp_inr} · <span class="ja-savings">Save ${p.savings_pct}%</span></p>
+        </div>
+      `).join('');
+    }
+
+    input.addEventListener('input', () => render(input.value.trim()));
+    render('');
+  </script>
+</BaseLayout>

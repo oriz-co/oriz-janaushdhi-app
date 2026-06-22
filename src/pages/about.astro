@@ -1,0 +1,41 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+---
+
+<BaseLayout
+  title="About Janaushdhi — Oriz family"
+  description="Janaushdhi is a free, ad-free price-intelligence tool for the Pradhan Mantri Bhartiya Janaushadhi Pariyojana (PMBJP)."
+>
+  <div class="page" id="main">
+    <h1>About Janaushdhi</h1>
+    <p>
+      Janaushdhi is a free, ad-free price-intelligence tool for the
+      <strong>Pradhan Mantri Bhartiya Janaushadhi Pariyojana (PMBJP)</strong>.
+      It scrapes the official product list at
+      <a href="https://www.janaushadhi.gov.in/" rel="noopener">janaushadhi.gov.in</a>
+      once a day, compares each generic to the equivalent branded drug, and shows
+      you how much you'd save by switching. Part of the <a href="https://oriz.in/">Oriz</a> family of small static sites.
+    </p>
+
+    <h2>Disclaimer</h2>
+    <p>
+      Prices on this site are scraped from <strong>janaushadhi.gov.in</strong> and may
+      lag the official source by up to 24 hours. Brand MRPs are illustrative and may
+      vary by retailer, batch, and date. <strong>Talk to a registered pharmacist or doctor before substituting any medication.</strong>
+      This site is not affiliated with the Government of India or BPPI.
+    </p>
+
+    <h2>No ads. No tracking.</h2>
+    <p>
+      This is a public-health surface. We don't run AdSense, EthicalAds, or any
+      ad slot. Hosting is free-tier static (Cloudflare Pages). Sponsor footer
+      may surface in future for sustainability.
+    </p>
+
+    <h2>Source code</h2>
+    <p>
+      Open source under MIT —
+      <a href="https://github.com/chirag127/oriz-janaushdhi-app" rel="noopener">github.com/chirag127/oriz-janaushdhi-app</a>.
+    </p>
+  </div>
+</BaseLayout>

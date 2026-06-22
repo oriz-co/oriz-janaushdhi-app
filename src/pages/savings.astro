@@ -1,0 +1,70 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import data from '../../data/latest.json'
+
+const products = data.products
+---
+
+<BaseLayout
+  title="Savings calculator — Jan Aushadhi vs brand"
+  description="Enter a brand name and quantity to see what you'd save by switching to the Jan Aushadhi generic."
+>
+  <div class="page" id="main">
+    <h1>Savings calculator</h1>
+    <p class="lede">Enter a brand name and the number of packs you buy. We'll show what you'd save by switching to the Jan Aushadhi generic.</p>
+
+    <div style="display:grid;gap:12px;max-width:480px;margin:20px 0;">
+      <div>
+        <label for="brand" style="display:block;font-weight:600;margin-bottom:6px;">Brand name</label>
+        <input id="brand" class="ja-input" type="search" placeholder="e.g. Crocin 500" autocomplete="off" />
+      </div>
+      <div>
+        <label for="qty" style="display:block;font-weight:600;margin-bottom:6px;">Packs per month</label>
+        <input id="qty" class="ja-input" type="number" value="3" min="1" max="100" />
+      </div>
+    </div>
+
+    <div id="calc-out" style="margin-top:12px;"></div>
+  </div>
+
+  <script
+    is:inline
+    define:vars={{ products }}
+    type="module"
+  >
+    const brand = document.getElementById('brand');
+    const qty = document.getElementById('qty');
+    const out = document.getElementById('calc-out');
+
+    function calc() {
+      const q = (brand.value || '').trim().toLowerCase();
+      const n = Math.max(1, parseInt(qty.value, 10) || 1);
+      if (!q) {
+        out.innerHTML = '<p style="color:var(--ja-muted);">Enter a brand name to calculate savings.</p>';
+        return;
+      }
+      const hit = products.find((p) =>
+        p.brand_equivalent.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
+      );
+      if (!hit) {
+        out.innerHTML = `<div class="ja-card"><p>No Jan Aushadhi equivalent found for <strong>${q}</strong>.</p></div>`;
+        return;
+      }
+      const perPack = hit.brand_mrp_inr - hit.mrp_inr;
+      const monthly = perPack * n;
+      const yearly = monthly * 12;
+      out.innerHTML = `
+        <div class="ja-card">
+          <h2 style="margin:0 0 8px;">Switch to <a href="/p/${hit.slug}/">${hit.name}</a></h2>
+          <p style="margin:0 0 4px;">Per pack: brand ₹${hit.brand_mrp_inr} → JA ₹${hit.mrp_inr} · save <span class="ja-savings">₹${perPack.toFixed(2)}</span></p>
+          <p style="margin:0 0 4px;">Monthly (${n} packs): <span class="ja-savings">₹${monthly.toFixed(2)}</span></p>
+          <p style="margin:0;">Yearly (12 months): <span class="ja-savings">₹${yearly.toFixed(2)}</span></p>
+        </div>
+      `;
+    }
+
+    brand.addEventListener('input', calc);
+    qty.addEventListener('input', calc);
+    calc();
+  </script>
+</BaseLayout>

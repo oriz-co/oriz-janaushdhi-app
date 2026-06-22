@@ -1,0 +1,46 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+
+const stores = [
+  { city: 'Delhi', name: 'Jan Aushadhi Kendra — AIIMS', address: 'Sri Aurobindo Marg, Ansari Nagar, New Delhi 110029' },
+  { city: 'Mumbai', name: 'Jan Aushadhi Kendra — KEM', address: 'Acharya Donde Marg, Parel, Mumbai 400012' },
+  { city: 'Bengaluru', name: 'Jan Aushadhi Kendra — Victoria', address: 'Kalasipalya, Bengaluru 560002' },
+]
+---
+
+<BaseLayout
+  title="Find a Jan Aushadhi Kendra near you"
+  description="Locate Jan Aushadhi (PMBJP) Kendras across India. Map and store list."
+>
+  <div class="page" id="main">
+    <h1>Find a Jan Aushadhi Kendra</h1>
+    <p class="lede">Over 14,000 PMBJP Kendras operate across India. A small sample is listed below; full map coming in v1.</p>
+
+    {/* TODO: replace with a real Leaflet/OpenStreetMap map in v1 */}
+    <svg viewBox="0 0 400 460" style="width:100%;max-width:400px;background:#fff;border:1px solid var(--ja-border);border-radius:8px;padding:12px;display:block;margin:0 auto;" role="img" aria-label="Placeholder map of India">
+      <path
+        d="M 200 30 L 280 60 L 320 130 L 340 220 L 300 320 L 230 420 L 200 440 L 170 420 L 100 320 L 80 200 L 110 100 Z"
+        fill="#e8f0e8"
+        stroke="#1B7F3A"
+        stroke-width="2"
+      />
+      <circle cx="190" cy="120" r="5" fill="#1B7F3A" /><text x="200" y="125" font-size="11">Delhi</text>
+      <circle cx="140" cy="240" r="5" fill="#1B7F3A" /><text x="80" y="245" font-size="11" text-anchor="end" style="text-anchor:end;">Mumbai</text>
+      <circle cx="200" cy="350" r="5" fill="#1B7F3A" /><text x="210" y="355" font-size="11">Bengaluru</text>
+      <text x="200" y="455" font-size="11" fill="#999" text-anchor="middle">Placeholder map · interactive version in v1</text>
+    </svg>
+
+    <h2>Sample stores</h2>
+    {stores.map((s) => (
+      <div class="ja-card">
+        <h3 style="margin:0 0 4px;">{s.name}</h3>
+        <p style="margin:0;color:var(--ja-muted);">{s.city} · {s.address}</p>
+      </div>
+    ))}
+
+    <p style="margin-top:24px;">
+      Full Kendra directory:
+      <a href="https://www.janaushadhi.gov.in/KendraDetails.aspx" rel="noopener">janaushadhi.gov.in/KendraDetails</a>
+    </p>
+  </div>
+</BaseLayout>

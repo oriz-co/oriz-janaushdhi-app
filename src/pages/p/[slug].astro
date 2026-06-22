@@ -1,0 +1,50 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import data from '../../../data/latest.json'
+
+export function getStaticPaths() {
+  return data.products.map((p) => ({
+    params: { slug: p.slug },
+    props: { product: p },
+  }))
+}
+
+const { product } = Astro.props
+const savingsInr = (product.brand_mrp_inr - product.mrp_inr).toFixed(2)
+---
+
+<BaseLayout
+  title={`${product.name} — Jan Aushadhi price ₹${product.mrp_inr}`}
+  description={`Generic ${product.name} (Jan Aushadhi) at ₹${product.mrp_inr} vs brand ${product.brand_equivalent} at ₹${product.brand_mrp_inr}. Save ${product.savings_pct}%.`}
+>
+  <div class="page" id="main">
+    <p style="margin: 0 0 8px;"><a href="/">← All products</a></p>
+    <h1>{product.name}</h1>
+    <p class="lede">Pack: {product.pack} · Jan Aushadhi MRP <strong>₹{product.mrp_inr}</strong></p>
+
+    <div class="ja-card">
+      <h2 style="margin-top:0;">Brand comparison</h2>
+      <p><strong>{product.brand_equivalent}</strong> sells the same molecule for <strong>₹{product.brand_mrp_inr}</strong> per {product.pack}.</p>
+      <p>Switching to Jan Aushadhi saves you <strong class="ja-savings">₹{savingsInr} ({product.savings_pct}%)</strong> per pack.</p>
+    </div>
+
+    <h2>Price history</h2>
+    {/* TODO: wire Chart.js once history accumulates */}
+    <svg viewBox="0 0 600 180" style="width:100%;max-width:600px;background:#fff;border:1px solid var(--ja-border);border-radius:8px;padding:12px;" role="img" aria-label="Placeholder price history chart">
+      <line x1="40" y1="20" x2="40" y2="150" stroke="#999" stroke-width="1" />
+      <line x1="40" y1="150" x2="580" y2="150" stroke="#999" stroke-width="1" />
+      <polyline
+        fill="none"
+        stroke="#1B7F3A"
+        stroke-width="2"
+        points="60,120 150,118 240,115 330,110 420,108 510,105 580,100"
+      />
+      <text x="50" y="170" font-size="11" fill="#666">Jan</text>
+      <text x="570" y="170" font-size="11" fill="#666">Today</text>
+      <text x="300" y="40" font-size="12" fill="#999" text-anchor="middle">Price history (placeholder — daily snapshots accumulating)</text>
+    </svg>
+
+    <h2>Find a Kendra</h2>
+    <p>Looking for a nearby Jan Aushadhi Kendra? <a href="/stores/">Browse stores →</a></p>
+  </div>
+</BaseLayout>

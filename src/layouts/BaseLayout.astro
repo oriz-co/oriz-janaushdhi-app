@@ -1,0 +1,140 @@
+---
+/*
+ * BaseLayout — Janaushdhi app shell.
+ *
+ * Janaushdhi (PMBJP) generic medicine price intelligence. NO ADS per
+ * monetisation-channel-matrix; public-health surface, sponsor footer only.
+ * Mobile-first, table-friendly. Skeleton mirrors home-app/BaseLayout but
+ * strips the React islands and AdSense block.
+ */
+import Layout from '@chirag127/astro-chrome/Layout.astro'
+
+interface Props {
+  title?: string
+  description?: string
+  canonical?: string
+  noindex?: boolean
+  wordmarkSubtitle?: string
+}
+
+const {
+  title = 'Janaushdhi — generic medicine prices vs brand MRPs',
+  description = 'Compare Jan Aushadhi (PMBJP) generic medicine prices against brand-name MRPs. Find your nearest Kendra, calculate savings, and discover substitutes.',
+  canonical = `https://janaushdhi.oriz.in${Astro.url.pathname}`,
+  noindex = false,
+  wordmarkSubtitle = 'janaushdhi',
+} = Astro.props
+
+const bottomBarActions = [
+  { icon: '⌂', label: 'Home', href: '/' },
+  { icon: '☰', label: 'Browse', href: '/#browse' },
+  { icon: '⇄', label: 'Substitute', href: '/find-substitute/' },
+  { icon: '◉', label: 'Stores', href: '/stores/' },
+  { icon: '⋯', label: 'Menu', href: '/about/' },
+]
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="janaushdhi · oriz" />
+    <meta name="theme-color" content="#1B7F3A" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="oriz · RSS" href="https://oriz.in/rss.xml" />
+
+    <style is:inline>
+      :root {
+        --ja-green: #1b7f3a;
+        --ja-green-dark: #135a29;
+        --ja-bg: #fbfbf8;
+        --ja-fg: #15110d;
+        --ja-muted: #6b6660;
+        --ja-border: #e5e2dc;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--ja-bg);
+        color: var(--ja-fg);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.5;
+      }
+      a { color: var(--ja-green-dark); text-decoration: underline; text-underline-offset: 2px; }
+      .skip-link {
+        position: absolute; left: -9999px; top: 0;
+      }
+      .skip-link:focus { left: 8px; top: 8px; background: #fff; padding: 8px 12px; }
+      main, .page {
+        max-width: 1080px; margin: 0 auto; padding: 24px 16px 96px;
+      }
+      h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); margin: 0 0 12px; line-height: 1.2; }
+      h2 { font-size: clamp(1.2rem, 3vw, 1.5rem); margin: 24px 0 8px; }
+      .lede { color: var(--ja-muted); margin: 0 0 24px; }
+      .ja-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table.ja-table {
+        width: 100%; min-width: 640px; border-collapse: collapse;
+        background: #fff; border: 1px solid var(--ja-border); border-radius: 8px;
+      }
+      table.ja-table th, table.ja-table td {
+        padding: 10px 12px; border-bottom: 1px solid var(--ja-border); text-align: left;
+        font-size: 0.95rem;
+      }
+      table.ja-table th { background: #f4f2ec; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; }
+      table.ja-table tr:last-child td { border-bottom: 0; }
+      .ja-savings { color: var(--ja-green-dark); font-weight: 600; }
+      .ja-input {
+        width: 100%; padding: 10px 12px; font-size: 1rem;
+        border: 1px solid var(--ja-border); border-radius: 6px; background: #fff;
+      }
+      .ja-input:focus { outline: 2px solid var(--ja-green); outline-offset: 1px; }
+      .ja-card {
+        background: #fff; border: 1px solid var(--ja-border); border-radius: 8px;
+        padding: 16px; margin: 12px 0;
+      }
+      .ja-button {
+        display: inline-block; padding: 10px 16px; background: var(--ja-green); color: #fff;
+        border: 0; border-radius: 6px; font-size: 1rem; cursor: pointer; text-decoration: none;
+      }
+      .ja-button:hover { background: var(--ja-green-dark); }
+      .ja-sponsor {
+        text-align: center; padding: 16px; color: var(--ja-muted); font-size: 0.85rem;
+        border-top: 1px solid var(--ja-border); margin-top: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Layout wordmarkSubtitle={wordmarkSubtitle} bottomBarActions={bottomBarActions}>
+      <nav slot="header-nav">
+        <a href="/find-substitute/">Find substitute</a>
+        <a href="/stores/">Stores</a>
+      </nav>
+      <nav slot="sidebar" aria-label="Section">
+        <ul style="list-style:none;padding:0;margin:0;">
+          <li><a href="/#browse">Browse</a></li>
+          <li><a href="/find-substitute/">Find substitute</a></li>
+          <li><a href="/stores/">Stores</a></li>
+          <li><a href="/savings/">Savings calculator</a></li>
+          <li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+      <slot />
+      <div slot="footer-extra" class="ja-sponsor">
+        Sponsor slot — public-health surface. No ads. Data scraped daily from
+        <a href="https://www.janaushadhi.gov.in/" rel="noopener">janaushadhi.gov.in</a>.
+      </div>
+    </Layout>
+  </body>
+</html>
