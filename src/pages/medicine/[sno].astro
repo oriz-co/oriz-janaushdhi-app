@@ -1,0 +1,83 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import data from '../../../data/medicines.json'
+
+export function getStaticPaths() {
+  const products = data.products ?? []
+  // Build a sno -> neighbor map for prev/next
+  return products.map((p, i) => ({
+    params: { sno: String(p.sno) },
+    props: {
+      product: p,
+      prev: i > 0 ? products[i - 1] : null,
+      next: i < products.length - 1 ? products[i + 1] : null,
+    },
+  }))
+}
+
+const { product, prev, next } = Astro.props
+
+// Heuristic: brand MRP ≈ Jan Aushadhi price × 4.5 (avg multiple per BPPI literature)
+const jaPrice = typeof product.mrp === 'number' ? product.mrp : 0
+const estBrandMrp = jaPrice > 0 ? Math.round(jaPrice * 4.5 * 100) / 100 : 0
+const savingsPct = estBrandMrp > 0 ? Math.round(((estBrandMrp - jaPrice) / estBrandMrp) * 100) : 0
+const savingsInr = estBrandMrp > 0 ? (estBrandMrp - jaPrice).toFixed(2) : '0'
+---
+
+<BaseLayout
+  title={`${product.name} — ₹${jaPrice ? jaPrice.toFixed(2) : '—'} · Janaushdhi`}
+  description={`Generic ${product.name} at Jan Aushadhi Kendras. Unit ${product.unit || 'pack'} for ₹${jaPrice ? jaPrice.toFixed(2) : '—'}. Save approximately ${savingsPct}% vs brand-name.`}
+>
+  <div class="page">
+    <p style="margin:0 0 8px;"><a href="/browse/">← All medicines</a></p>
+    <header style="margin-bottom:24px;">
+      <span class="pill" style="margin-bottom:12px;">Medicine #{product.sno}</span>
+      <h1 style="margin:8px 0 8px;">{product.name}</h1>
+      <p class="muted" style="margin:0;">
+        Unit size: <strong style="color:var(--color-fg);">{product.unit || '—'}</strong>
+        {product.code ? <> · Drug code <span class="mono">{product.code}</span></> : null}
+      </p>
+    </header>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:32px;">
+      <div class="card">
+        <p class="muted mono" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;">Jan Aushadhi MRP</p>
+        <p style="font-family:var(--font-display);font-weight:700;font-size:2rem;margin:0;color:var(--color-accent);">₹{jaPrice ? jaPrice.toFixed(2) : '—'}</p>
+        <p class="muted" style="font-size:0.85rem;margin:6px 0 0;">per {product.unit || 'pack'}</p>
+      </div>
+      <div class="card">
+        <p class="muted mono" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;">Approx. brand MRP</p>
+        <p style="font-family:var(--font-display);font-weight:700;font-size:2rem;margin:0;color:var(--color-muted);text-decoration:line-through;">₹{estBrandMrp.toFixed(2)}</p>
+        <p class="muted" style="font-size:0.85rem;margin:6px 0 0;">illustrative (~4.5× generic)</p>
+      </div>
+      <div class="card" style="background:var(--color-accent-tint);border-color:transparent;">
+        <p class="mono" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;color:var(--color-accent-dark);">You save</p>
+        <p style="font-family:var(--font-display);font-weight:700;font-size:2rem;margin:0;color:var(--color-accent-dark);">{savingsPct}%</p>
+        <p style="font-size:0.85rem;margin:6px 0 0;color:var(--color-accent-dark);">about ₹{savingsInr} per pack</p>
+      </div>
+    </div>
+
+    <section class="card" style="margin-bottom:24px;">
+      <h2 style="margin-top:0;">Where to buy</h2>
+      <p class="muted" style="margin:0 0 12px;">
+        Buy this generic at any of the <strong style="color:var(--color-fg);">14,000+ Jan Aushadhi Kendras</strong> across India. Show the medicine name and unit size to the pharmacist.
+      </p>
+      <a class="btn btn-primary" href="/stores/">Find nearest Kendra →</a>
+    </section>
+
+    <section class="card" style="margin-bottom:24px;">
+      <h2 style="margin-top:0;">Important</h2>
+      <ul class="muted" style="margin:0;padding-left:1.2em;font-size:0.95rem;">
+        <li>Brand MRP is an illustrative estimate based on typical generic-to-brand price multiples. Actual brand prices vary by manufacturer, retailer, and batch.</li>
+        <li>Always consult a registered pharmacist or doctor before substituting medications.</li>
+        <li>Prices scraped from <a href="https://www.janaushadhi.gov.in/" rel="noopener external">janaushadhi.gov.in</a> and may lag by up to 24 hours.</li>
+      </ul>
+    </section>
+
+    <nav class="pager" aria-label="Adjacent medicines">
+      {prev ? <a href={`/medicine/${prev.sno}/`}>← {prev.name.slice(0, 32)}{prev.name.length > 32 ? '…' : ''}</a> : <span class="disabled">← Prev</span>}
+      <a href="/browse/">All medicines</a>
+      {next ? <a href={`/medicine/${next.sno}/`}>{next.name.slice(0, 32)}{next.name.length > 32 ? '…' : ''} →</a> : <span class="disabled">Next →</span>}
+    </nav>
+  </div>
+</BaseLayout>

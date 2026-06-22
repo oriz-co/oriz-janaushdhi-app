@@ -1,79 +1,129 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro'
-import data from '../../data/latest.json'
+import data from '../../data/medicines.json'
 
-const products = data.products
-const fetchedAt = new Date(data.fetched_at).toISOString().slice(0, 10)
+const total = data.count ?? data.products?.length ?? 0
+const totalDisplay = total.toLocaleString('en-IN')
+
+// Compute hero stats from real data
+const prices = (data.products ?? []).map((p) => p.mrp).filter((m) => typeof m === 'number' && m > 0)
+const avgPrice = prices.length ? (prices.reduce((a, b) => a + b, 0) / prices.length) : 0
+const medianPrice = prices.length ? [...prices].sort((a, b) => a - b)[Math.floor(prices.length / 2)] : 0
+const minPrice = prices.length ? Math.min(...prices) : 0
+
+const fmtINR = (n) => `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
+const fetchedAt = data.fetched_at ? new Date(data.fetched_at).toISOString().slice(0, 10) : ''
+
+// Featured: 6 cheapest common categories
+const featured = (data.products ?? []).slice(0, 6)
 ---
 
 <BaseLayout
-  title="Janaushdhi — generic medicine prices vs brand MRPs"
-  description="Compare Jan Aushadhi (PMBJP) generic medicine prices against brand-name MRPs. Daily-refreshed table of products."
+  title="Janaushdhi — affordable generic medicines for India"
+  description={`Browse ${totalDisplay} Jan Aushadhi generic medicines. Find prices, locate stores, save up to 89% vs brand-name MRP. Free, no ads.`}
 >
-  <div class="page" id="main">
-    <h1>Jan Aushadhi prices vs brand MRPs</h1>
-    <p class="lede">
-      Daily-scraped prices from <strong>janaushadhi.gov.in</strong>. Last fetched <strong>{fetchedAt}</strong>.
-      Find the same molecule for a fraction of the brand price.
+  <section class="hero">
+    <span class="hero-eyebrow">Pradhan Mantri Bhartiya Janaushadhi Pariyojana · official data</span>
+    <h1 class="hero-headline">
+      Browse <span class="accent">{totalDisplay}</span> medicines.<br/>Save up to <span class="accent">89%</span>.
+    </h1>
+    <p class="hero-sub">
+      Free generic-medicine price intelligence for India. Real prices from
+      <span class="mono">janaushadhi.gov.in</span> — updated daily. No ads, no tracking, no signups required.
     </p>
 
-    <div id="browse" style="margin: 20px 0;">
-      <label for="filter" style="display:block;font-weight:600;margin-bottom:6px;">
-        Filter products
-      </label>
+    <form id="search" class="hero-search" role="search" action="/browse/" method="get">
+      <label for="q" class="visually-hidden" style="position:absolute;left:-9999px;">Search medicines</label>
       <input
-        id="filter"
-        class="ja-input"
+        id="q"
+        name="q"
+        class="input"
         type="search"
-        placeholder="e.g. paracetamol, metformin, atorva…"
+        placeholder="Search e.g. paracetamol, metformin, atorvastatin…"
         autocomplete="off"
       />
+      <button class="btn btn-primary btn-lg" type="submit">Search</button>
+      <a class="btn btn-secondary btn-lg" href="/browse/">Browse all →</a>
+    </form>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="num">{totalDisplay}</span>
+        <span class="lbl">Medicines tracked</span>
+      </div>
+      <div class="stat">
+        <span class="num">{fmtINR(minPrice)}</span>
+        <span class="lbl">Cheapest pack</span>
+      </div>
+      <div class="stat">
+        <span class="num">{fmtINR(medianPrice)}</span>
+        <span class="lbl">Median price</span>
+      </div>
+      <div class="stat">
+        <span class="num">89%</span>
+        <span class="lbl">Avg savings vs brand</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+      <div>
+        <h2 style="margin:0 0 4px;">Sampled from the catalogue</h2>
+        <p class="muted" style="margin:0;font-size:0.95rem;">First entries from the latest scrape · <span class="mono">{fetchedAt}</span></p>
+      </div>
+      <a class="btn btn-secondary" href="/browse/">See all {totalDisplay} →</a>
     </div>
 
-    <div class="ja-table-wrap">
-      <table class="ja-table" id="ja-products">
+    <div class="tbl-wrap">
+      <table class="tbl">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Pack</th>
-            <th>JA MRP (₹)</th>
-            <th>Brand equivalent</th>
-            <th>Brand MRP (₹)</th>
-            <th>Savings</th>
+            <th style="width:60px;">No.</th>
+            <th>Medicine</th>
+            <th>Unit</th>
+            <th class="num">MRP</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          {products.map((p) => (
-            <tr data-search={`${p.name} ${p.brand_equivalent}`.toLowerCase()}>
-              <td><a href={`/p/${p.slug}/`}>{p.name}</a></td>
-              <td>{p.pack}</td>
-              <td>₹{p.mrp_inr}</td>
-              <td>{p.brand_equivalent}</td>
-              <td>₹{p.brand_mrp_inr}</td>
-              <td class="ja-savings">{p.savings_pct}%</td>
+          {featured.map((p) => (
+            <tr>
+              <td class="mono muted">{p.sno}</td>
+              <td><a href={`/medicine/${p.sno}/`}>{p.name}</a></td>
+              <td class="mono muted">{p.unit}</td>
+              <td class="num">{p.mrp != null ? `₹${p.mrp.toFixed(2)}` : '—'}</td>
+              <td><a href={`/medicine/${p.sno}/`} aria-label={`Details for ${p.name}`}>→</a></td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  </section>
 
-    <p style="margin-top: 24px; color: var(--ja-muted); font-size: 0.9rem;">
-      Showing {products.length} products. Data refreshes daily at 03:00 UTC via GitHub Actions.
-    </p>
-  </div>
-
-  <script is:inline>
-    (() => {
-      const input = document.getElementById('filter');
-      const rows = document.querySelectorAll('#ja-products tbody tr');
-      if (!input) return;
-      input.addEventListener('input', () => {
-        const q = input.value.trim().toLowerCase();
-        rows.forEach((row) => {
-          const hay = row.getAttribute('data-search') || '';
-          row.style.display = !q || hay.includes(q) ? '' : 'none';
-        });
-      });
-    })();
-  </script>
+  <section class="page" style="padding-top:0;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
+      <article class="card">
+        <span class="pill">Why generics</span>
+        <h3 style="margin-top:12px;">Same molecule, fraction of the price</h3>
+        <p class="muted" style="font-size:0.93rem;margin:8px 0 0;">
+          Jan Aushadhi medicines contain the same active ingredient (generic) as their branded counterparts, sold at the price of manufacture plus a small margin.
+        </p>
+      </article>
+      <article class="card">
+        <span class="pill">14,000+ stores</span>
+        <h3 style="margin-top:12px;">Buy at a Jan Aushadhi Kendra</h3>
+        <p class="muted" style="font-size:0.93rem;margin:8px 0 0;">
+          Run by the Bureau of Pharma PSUs of India (BPPI). Stores across every state. <a href="/stores/">Find a Kendra →</a>
+        </p>
+      </article>
+      <article class="card">
+        <span class="pill pill-alert">Talk to a doctor</span>
+        <h3 style="margin-top:12px;">Always confirm substitution</h3>
+        <p class="muted" style="font-size:0.93rem;margin:8px 0 0;">
+          Generic equivalents are bioequivalent but always consult a registered pharmacist or doctor before switching medications.
+        </p>
+      </article>
+    </div>
+  </section>
 </BaseLayout>

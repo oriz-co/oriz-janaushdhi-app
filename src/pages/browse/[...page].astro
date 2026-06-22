@@ -1,0 +1,120 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import data from '../../../data/medicines.json'
+
+export function getStaticPaths({ paginate }) {
+  return paginate(data.products ?? [], { pageSize: 100 })
+}
+
+const { page } = Astro.props
+const products = page.data
+const total = data.count ?? data.products?.length ?? 0
+const totalDisplay = total.toLocaleString('en-IN')
+
+// build numbered pager (windowed)
+const lastPage = page.lastPage
+const cur = page.currentPage
+const windowSize = 2
+const pages = []
+for (let i = 1; i <= lastPage; i++) {
+  if (i === 1 || i === lastPage || (i >= cur - windowSize && i <= cur + windowSize)) {
+    pages.push(i)
+  } else if (pages[pages.length - 1] !== '…') {
+    pages.push('…')
+  }
+}
+const pageUrl = (n) => (n === 1 ? '/browse/' : `/browse/${n}/`)
+---
+
+<BaseLayout
+  title={`Browse ${totalDisplay} medicines — page ${cur} of ${lastPage} · Janaushdhi`}
+  description={`Page ${cur} of ${lastPage}: Jan Aushadhi generic medicine catalogue with MRP prices. Showing ${products.length} medicines.`}
+  showSidebar={true}
+>
+  <header style="margin-bottom:24px;">
+    <p class="pill" style="margin-bottom:12px;">Catalogue</p>
+    <h1 style="margin:0 0 6px;">All medicines</h1>
+    <p class="muted" style="margin:0;">
+      Showing <strong style="color:var(--color-fg);">{(page.start + 1).toLocaleString('en-IN')}–{(page.end + 1).toLocaleString('en-IN')}</strong>
+      of <strong style="color:var(--color-fg);">{totalDisplay}</strong> medicines · page {cur} of {lastPage}
+    </p>
+  </header>
+
+  <form action="/browse/" method="get" style="margin-bottom:20px;">
+    <input type="search" name="q" class="input" placeholder="Search by name (e.g. paracetamol)…" style="max-width:480px;" />
+  </form>
+
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:64px;">No.</th>
+          <th>Medicine</th>
+          <th style="width:120px;">Unit</th>
+          <th class="num" style="width:120px;">MRP</th>
+          <th style="width:60px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {products.map((p) => (
+          <tr>
+            <td class="mono muted">{p.sno}</td>
+            <td>
+              <a href={`/medicine/${p.sno}/`}>{p.name}</a>
+            </td>
+            <td class="mono muted">{p.unit || '—'}</td>
+            <td class="num">{p.mrp != null ? `₹${p.mrp.toFixed(2)}` : '—'}</td>
+            <td><a href={`/medicine/${p.sno}/`} aria-label={`Details for ${p.name}`}>→</a></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <nav class="pager" aria-label="Pagination">
+    {page.url.prev ? (
+      <a href={page.url.prev}>← Prev</a>
+    ) : (
+      <span class="disabled">← Prev</span>
+    )}
+    {pages.map((n) =>
+      n === '…' ? (
+        <span class="disabled">…</span>
+      ) : n === cur ? (
+        <span class="current">{n}</span>
+      ) : (
+        <a href={pageUrl(n)}>{n}</a>
+      ),
+    )}
+    {page.url.next ? (
+      <a href={page.url.next}>Next →</a>
+    ) : (
+      <span class="disabled">Next →</span>
+    )}
+  </nav>
+
+  <p class="muted" style="text-align:center;margin-top:24px;font-size:0.85rem;">
+    Source: <span class="mono">janaushadhi.gov.in</span> · Last refreshed {data.fetched_at ? new Date(data.fetched_at).toISOString().slice(0, 10) : 'recently'}
+  </p>
+
+  <script is:inline>
+    // Reading ?q= query param in case user searches — for v0 we do client filter on this page.
+    (function () {
+      var qs = new URLSearchParams(location.search)
+      var q = (qs.get('q') || '').trim().toLowerCase()
+      if (!q) return
+      var rows = document.querySelectorAll('table.tbl tbody tr')
+      var hits = 0
+      rows.forEach(function (r) {
+        var hay = (r.innerText || '').toLowerCase()
+        var hit = hay.indexOf(q) !== -1
+        if (!hit) r.style.display = 'none'
+        else hits++
+      })
+      var h1 = document.querySelector('h1')
+      if (h1) h1.textContent = 'Search: "' + q + '"'
+      var muted = document.querySelector('.muted')
+      if (muted) muted.textContent = hits + ' matches on this page'
+    })()
+  </script>
+</BaseLayout>
