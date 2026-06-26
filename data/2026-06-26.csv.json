@@ -1,0 +1,11 @@
+{
+  "fetched_at": "2026-06-22T00:00:00Z",
+  "source": "https://www.janaushadhi.gov.in/productportfolio/ProductmrpList",
+  "products": [
+    { "id": "ja-001", "name": "Paracetamol 500mg Tablet", "slug": "paracetamol-500mg", "pack": "10 tabs", "mrp_inr": 6.5, "brand_equivalent": "Crocin 500", "brand_mrp_inr": 28, "savings_pct": 77 },
+    { "id": "ja-002", "name": "Metformin 500mg Tablet", "slug": "metformin-500mg", "pack": "10 tabs", "mrp_inr": 9.0, "brand_equivalent": "Glycomet 500", "brand_mrp_inr": 45, "savings_pct": 80 },
+    { "id": "ja-003", "name": "Amlodipine 5mg Tablet", "slug": "amlodipine-5mg", "pack": "10 tabs", "mrp_inr": 4.5, "brand_equivalent": "Amlokind 5", "brand_mrp_inr": 22, "savings_pct": 79 },
+    { "id": "ja-004", "name": "Atorvastatin 10mg Tablet", "slug": "atorvastatin-10mg", "pack": "10 tabs", "mrp_inr": 14, "brand_equivalent": "Atorva 10", "brand_mrp_inr": 78, "savings_pct": 82 },
+    { "id": "ja-005", "name": "Pantoprazole 40mg Tablet", "slug": "pantoprazole-40mg", "pack": "10 tabs", "mrp_inr": 12.5, "brand_equivalent": "Pantop 40", "brand_mrp_inr": 65, "savings_pct": 81 }
+  ]
+}
