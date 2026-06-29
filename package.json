@@ -31,17 +31,17 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.0",
-    "@biomejs/biome": "^2.4.8",
+    "@biomejs/biome": "^2.5.1",
     "@chirag127/astro-test-utils": "^0.1.1",
-    "@playwright/test": "^1.48.0",
+    "@playwright/test": "^1.61.1",
     "@types/node": "^22.10.0",
     "@vitest/coverage-v8": "^2.0.0",
     "@vitest/ui": "^2.0.0",
     "happy-dom": "^15.0.0",
     "papaparse": "^5.5.4",
-    "playwright": "^1.61.0",
+    "playwright": "^1.61.1",
     "typescript": "^5.7.0",
     "vitest": "^2.0.0",
-    "wrangler": "^4.102.0"
+    "wrangler": "^4.105.0"
   }
 }
